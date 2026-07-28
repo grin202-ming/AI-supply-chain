@@ -13,7 +13,10 @@ const Sidebar = ({ currentView, setCurrentView }) => {
       <div className="sidebar-logo">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <ShieldAlert size={24} color="#60A5FA" />
-          <span>Compliance Supporter</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>RegInsight AI</span>
+            <span style={{ fontSize: '0.65rem', color: '#93C5FD', fontWeight: 500 }}>AI-powered Regulatory Change Intelligence</span>
+          </div>
         </div>
       </div>
       
