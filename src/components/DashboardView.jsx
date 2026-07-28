@@ -6,6 +6,8 @@ const DashboardView = () => {
   const [revisions, setRevisions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [detailedArticles, setDetailedArticles] = useState([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     const fetchLaws = async () => {
@@ -28,6 +30,23 @@ const DashboardView = () => {
 
     fetchLaws();
   }, []);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (!selectedRevision) return;
+      setLoadingDetails(true);
+      try {
+        const res = await fetch(`/api/getLawDetail?id=${selectedRevision.id}`);
+        const data = await res.json();
+        setDetailedArticles(data.articles || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+    fetchDetails();
+  }, [selectedRevision]);
 
   return (
     <div className="content-scroll">
@@ -130,7 +149,7 @@ const DashboardView = () => {
           </div>
           
           <div style={{ padding: '12px', backgroundColor: '#FEF3C7', color: '#B45309', borderRadius: '6px', fontSize: '0.875rem', marginBottom: '16px' }}>
-            <strong>안내:</strong> 법령 목록은 국가법령정보센터의 실제 데이터를 실시간으로 가져왔으나, 상세 조문 및 아래의 AI 분석 결과는 화면을 보여주기 위한 가상의 샘플 데이터입니다.
+            <strong>안내:</strong> 법령 목록과 '개정안' 원문 텍스트는 국가법령정보센터의 실제 데이터를 실시간으로 가져옵니다. 단, AI 요약 및 현행(이전) 조문 데이터는 시각적 예시를 위한 가상 데이터입니다.
           </div>
 
           <div className="ai-summary-card">
@@ -168,11 +187,20 @@ const DashboardView = () => {
               </div>
             </div>
             <div className="diff-panel">
-              <div className="diff-header">개정안 (변경 후)</div>
+              <div className="diff-header">개정안 (변경 후) - 실제 원문 데이터</div>
               <div className="diff-content">
-                제 11조 (수출입의 승인 등)<br/>
-                ① 수출입 공고에 따른 제한품목을 수출하거나 수입하려는 자는 산업통상자원부장관의 승인을 받아야 한다.<br/><br/>
-                <span className="diff-added">② 제1항에도 불구하고 다음 각 호의 어느 하나에 해당하는 경우에는 승인을 받지 아니하고 수출하거나 수입할 수 있다. <strong>다만, 대통령령으로 정하는 첨단기술 품목은 사전 신고를 하여야 한다.</strong></span>
+                {loadingDetails ? (
+                  <div style={{display:'flex', alignItems:'center', color:'#64748B'}}>
+                    <Loader2 className="animate-spin" size={16} style={{marginRight:'8px'}}/>
+                    실제 조문 원문을 불러오는 중...
+                  </div>
+                ) : detailedArticles.length > 0 ? (
+                  detailedArticles.map((text, idx) => (
+                    <div key={idx} style={{marginBottom:'12px'}}>{text}</div>
+                  ))
+                ) : (
+                  '상세 조문 정보를 가져올 수 없습니다.'
+                )}
               </div>
             </div>
           </div>
