@@ -7,6 +7,7 @@ const DashboardView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [detailedArticles, setDetailedArticles] = useState([]);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ const DashboardView = () => {
         const res = await fetch(`/api/getLawDetail?id=${selectedRevision.id}`);
         const data = await res.json();
         setDetailedArticles(data.articles || []);
+        setAiAnalysis(data.aiAnalysis || null);
       } catch (err) {
         console.error(err);
       } finally {
@@ -148,35 +150,45 @@ const DashboardView = () => {
             <button className="btn btn-outline" onClick={() => setSelectedRevision(null)}>닫기</button>
           </div>
           
-          <div style={{ padding: '12px', backgroundColor: '#FEF3C7', color: '#B45309', borderRadius: '6px', fontSize: '0.875rem', marginBottom: '16px' }}>
-            <strong>안내:</strong> 법령 목록과 '개정안' 원문 텍스트는 국가법령정보센터의 실제 데이터를 실시간으로 가져옵니다. 단, AI 요약 및 현행(이전) 조문 데이터는 시각적 예시를 위한 가상 데이터입니다.
+          <div style={{ padding: '12px', backgroundColor: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', borderRadius: '6px', fontSize: '0.875rem', marginBottom: '16px' }}>
+            <strong>안내:</strong> 국가법령정보센터의 최신 원문 데이터를 바탕으로 <strong>Gemini AI가 실시간으로 생성한 실제 분석 결과</strong>입니다.
           </div>
 
           <div className="ai-summary-card">
             <Sparkles className="ai-icon" size={100} />
-            <div className="ai-section-title">
-              <Sparkles size={16} /> 1) 주요 변경 요약 (가상 데이터)
-            </div>
-            <p className="ai-text">
-              수출입 승인 면제 대상 품목이 기존 15개에서 20개로 확대되었습니다. 특정 첨단기술 품목에 대한 사전 신고 의무화 조항이 추가되었습니다.
-            </p>
+            
+            {loadingDetails ? (
+              <div style={{display:'flex', alignItems:'center', padding: '20px', color: '#1E3A8A'}}>
+                <Loader2 className="animate-spin" size={24} style={{marginRight:'12px'}} />
+                AI가 실제 법령 원문을 바탕으로 요약 및 리스크 분석을 생성하고 있습니다...
+              </div>
+            ) : aiAnalysis ? (
+              <>
+                <div className="ai-section-title">
+                  <Sparkles size={16} /> 1) 주요 변경 요약 (실시간 AI 분석)
+                </div>
+                <p className="ai-text">{aiAnalysis.summary}</p>
 
-            <div className="ai-section-title">
-              <Sparkles size={16} /> 2) 개정 취지 (가상 데이터)
-            </div>
-            <p className="ai-text">
-              글로벌 공급망 불확실성에 대응하고 국내 첨단 산업 보호를 강화하기 위해 전략물자 수출입 관리 체계를 개편하기 위함입니다.
-            </p>
+                <div className="ai-section-title">
+                  <Sparkles size={16} /> 2) 개정 취지 (실시간 AI 분석)
+                </div>
+                <p className="ai-text">{aiAnalysis.intent}</p>
 
-            <div className="ai-section-title" style={{ color: '#EF4444' }}>
-              <AlertTriangle size={16} color="#EF4444" /> 3) 실무 리스크 영향 (가상 데이터)
-            </div>
-            <p className="ai-text" style={{ fontWeight: 500 }}>
-              [HIGH RISK] 기존에 면제받던 일부 첨단 부품 수입 시 사전 신고 누락 시 통관 지연 및 과태료 부과 위험이 존재합니다. 관련 물류 부서에 즉각적인 프로세스 변경 공지가 필요합니다.
-            </p>
+                <div className="ai-section-title" style={{ color: aiAnalysis.riskLevel === 'HIGH RISK' ? '#EF4444' : aiAnalysis.riskLevel === 'MEDIUM RISK' ? '#F59E0B' : '#10B981' }}>
+                  <AlertTriangle size={16} /> 3) 실무 리스크 영향
+                </div>
+                <p className="ai-text" style={{ fontWeight: 500 }}>
+                  [{aiAnalysis.riskLevel}] {aiAnalysis.risk}
+                </p>
+              </>
+            ) : (
+              <div style={{ padding: '20px', color: '#EF4444' }}>
+                AI 분석 데이터를 가져오지 못했습니다. (가상 데이터 등 API 설정 확인 필요)
+              </div>
+            )}
           </div>
 
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginTop: '24px', marginBottom: '12px' }}>신구조문 비교 (Diff) - 가상 데이터</h3>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginTop: '24px', marginBottom: '12px' }}>신구조문 비교 (Diff)</h3>
           <div className="diff-container">
             <div className="diff-panel">
               <div className="diff-header">현행 (변경 전)</div>
