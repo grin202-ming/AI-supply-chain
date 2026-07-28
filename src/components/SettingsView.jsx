@@ -19,10 +19,10 @@ const SettingsView = () => {
         
         <div className="form-group">
           <label className="form-label">국가법령정보센터 크롤링 주기</label>
-          <select className="form-select" defaultValue="daily">
+          <select className="form-select" defaultValue="weekly">
             <option value="hourly">매시간 (Hourly)</option>
-            <option value="daily">매일 오전 9시 (Daily - Recommended)</option>
-            <option value="weekly">매주 월요일 (Weekly)</option>
+            <option value="daily">매일 오전 9시 (Daily)</option>
+            <option value="weekly">매주 월요일 (Weekly - Recommended)</option>
           </select>
           <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '8px' }}>
             * 너무 짧은 주기로 설정 시 국가법령정보센터 IP 차단 위험이 있으므로 1일 1회를 권장합니다.

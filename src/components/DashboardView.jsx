@@ -46,7 +46,7 @@ const DashboardView = () => {
         
         <div className="stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span className="stat-title">최근 7일 개정 건수</span>
+            <span className="stat-title">최근 1년 개정 건수</span>
             <FileText size={20} color="#F59E0B" />
           </div>
           <span className="stat-value">
